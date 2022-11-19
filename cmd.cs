@@ -8,7 +8,7 @@ class Program
 		System.Diagnostics.Process process = new System.Diagnostics.Process();
 		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-		startInfo.FileName = "cmd.exe";
+		startInfo.FileName = "C:\\Windows\\System32\\cmd.exe";
 		startInfo.Arguments = "/C mkdir C:\\ProgramData\\poc";
 		process.StartInfo = startInfo;
 		process.Start();
