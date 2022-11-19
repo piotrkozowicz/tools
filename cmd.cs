@@ -5,34 +5,12 @@ class Program
 {
 	static void Main()
 	{
-		WindowsCmdCommand.Run("dir", out string output, out string error);
-		//Console.WriteLine("OUTPUT: " + output);
-		//Console.WriteLine("ERROR:  " + error);
-		//Console.ReadLine();
-	}
-}
-
-public static class WindowsCmdCommand
-{
-	public static void Run(string command, out string output, out string error, string directory = null)
-	{
-		using Process process = new Process
-		{
-			StartInfo = new ProcessStartInfo
-			{
-				FileName = "cmd.exe",
-				UseShellExecute = false,
-				RedirectStandardOutput = false,
-				RedirectStandardError = false,
-				RedirectStandardInput = false,
-				Arguments = "/c mkdir C:\ProgramData\poc" + command,
-				CreateNoWindow = true,
-				WorkingDirectory = directory ?? string.Empty,
-			}
-		};
+		System.Diagnostics.Process process = new System.Diagnostics.Process();
+		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+		startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+		startInfo.FileName = "cmd.exe";
+		startInfo.Arguments = "/C mkdir C:\\ProgramData\\poc";
+		process.StartInfo = startInfo;
 		process.Start();
-		process.WaitForExit();
-		output = process.StandardOutput.ReadToEnd();
-		error = process.StandardError.ReadToEnd();
 	}
 }
