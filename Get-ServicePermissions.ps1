@@ -56,7 +56,7 @@ public class SvcNative {
 }
 '@
 
-$hSCM = [SvcNative]::OpenSCManager($null, $null, [SvcNative]::SC_MANAGER_CONNECT)
+$hSCM = [SvcNative]::OpenSCManager([NullString]::Value, [NullString]::Value, [SvcNative]::SC_MANAGER_CONNECT)
 if ($hSCM -eq [IntPtr]::Zero) {
     Write-Warning "OpenSCManager failed (error $([Runtime.InteropServices.Marshal]::GetLastWin32Error())). Exiting."
     exit 1
