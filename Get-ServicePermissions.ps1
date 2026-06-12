@@ -193,22 +193,26 @@ function Test-UserCanWrite {
 
     try { $acl = Get-Acl -Path $filePath } catch { return $false }
 
-    # Any of these rights on the file = user can overwrite the binary
-    $writeMask = (
-        [int][System.Security.AccessControl.FileSystemRights]::WriteData         -bor
-        [int][System.Security.AccessControl.FileSystemRights]::AppendData        -bor
-        [int][System.Security.AccessControl.FileSystemRights]::WriteAttributes   -bor
-        [int][System.Security.AccessControl.FileSystemRights]::WriteExtendedAttributes -bor
-        [int][System.Security.AccessControl.FileSystemRights]::FullControl       -bor
-        [int][System.Security.AccessControl.FileSystemRights]::Modify
-    )
+    # Use only write-exclusive bits to avoid false positives from compound enum values.
+    #
+    # Root cause of false positives: Modify (0x301BF) and FullControl (0x1F01FF) both
+    # include ExecuteFile (0x20), which is also present in ReadAndExecute (0x1200A9).
+    # ORing those compound values into a mask makes ReadAndExecute match — incorrectly
+    # flagging every system binary the user can merely run.
+    #
+    # WriteData (0x2) is the correct signal: present in Write/Modify/FullControl,
+    # absent from ReadAndExecute, Read, and Execute.
+    # AppendData (0x4): same pattern; alone can't overwrite content but included for accuracy.
+    # ChangePermissions (0x40000) / TakeOwnership (0x80000): allow ACL manipulation → indirect write.
+    [long]$writeMask = 0x2 -bor 0x4 -bor 0x40000 -bor 0x80000
 
     foreach ($ace in $acl.Access) {
         if ($ace.AccessControlType -ne 'Allow') { continue }
         try   { $aceSid = $ace.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value }
         catch { continue }
         if (-not $userSIDs.Contains($aceSid)) { continue }
-        if (([int]$ace.FileSystemRights -band $writeMask) -ne 0) { return $true }
+        # Cast through [int] first to preserve sign, then widen to [long] for -band
+        if (([long][int]$ace.FileSystemRights -band $writeMask) -ne 0) { return $true }
     }
     return $false
 }
