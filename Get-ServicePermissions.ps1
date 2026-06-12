@@ -29,7 +29,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 # Why: WindowsIdentity.Groups returns ALL group SIDs including ones the kernel
 # has marked SE_GROUP_USE_FOR_DENY_ONLY (e.g. BUILTIN\Administrators when UAC
 # is active and the process is non-elevated). Those SIDs apply to Deny ACEs only,
-# not Allow ACEs — so SDDL parsing incorrectly grants access the token can't
+# not Allow ACEs - so SDDL parsing incorrectly grants access the token can't
 # actually exercise (WinDefend, etc.).
 #
 # OpenService() runs the real kernel access check against the caller's token, so
@@ -130,7 +130,7 @@ function Test-UserCanWrite {
 
     # Only check write-exclusive bits.
     # WriteData (0x2) is present in Write/Modify/FullControl but NOT in
-    # ReadAndExecute/Read/Execute — so no false positives from run-only access.
+    # ReadAndExecute/Read/Execute - so no false positives from run-only access.
     # AppendData (0x4), ChangePermissions (0x40000), TakeOwnership (0x80000) included
     # as they also enable overwriting or escalating to write.
     [long]$writeMask = 0x2 -bor 0x4 -bor 0x40000 -bor 0x80000
@@ -157,8 +157,8 @@ Write-Host "  User     : " -NoNewline -ForegroundColor White
 Write-Host $identity.Name  -ForegroundColor Yellow
 
 Write-Host "  Is Admin : " -NoNewline -ForegroundColor White
-if ($isAdmin) { Write-Host "YES (elevated — all admin-accessible services will appear)" -ForegroundColor Red }
-else          { Write-Host "No  (non-elevated token — UAC-filtered results)"            -ForegroundColor Green }
+if ($isAdmin) { Write-Host "YES (elevated - all admin-accessible services will appear)" -ForegroundColor Red }
+else          { Write-Host "No  (non-elevated token - UAC-filtered results)"            -ForegroundColor Green }
 Write-Host ""
 
 # ── Scan ──────────────────────────────────────────────────────────────────────
@@ -288,10 +288,9 @@ if ($results.Count -eq 0) {
     }
 
     Write-Host "`n[*] Full results table:" -ForegroundColor White
+    $riskOrder = @{ 'CRITICAL' = 0; 'HIGH' = 1; 'MEDIUM' = 2; 'LOW' = 3 }
     $results |
-        Sort-Object @{E={
-            switch ($_.Risk) { 'CRITICAL' {0} 'HIGH' {1} 'MEDIUM' {2} default {3} }
-        }}, ServiceName |
+        Sort-Object { $riskOrder[$_.Risk] }, ServiceName |
         Format-Table -AutoSize Risk, ServiceName, Status, CanStart, CanStop, CanModify, CanWriteBinary, EffectivePath
 }
 
