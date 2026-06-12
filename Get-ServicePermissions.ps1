@@ -290,7 +290,7 @@ if ($results.Count -eq 0) {
     Write-Host "`n[*] Full results table:" -ForegroundColor White
     $results |
         Sort-Object @{E={
-            switch ($_.Risk) { 'CRITICAL'{0} 'HIGH'{1} 'MEDIUM'{2} default{3} }
+            switch ($_.Risk) { 'CRITICAL' {0} 'HIGH' {1} 'MEDIUM' {2} default {3} }
         }}, ServiceName |
         Format-Table -AutoSize Risk, ServiceName, Status, CanStart, CanStop, CanModify, CanWriteBinary, EffectivePath
 }
